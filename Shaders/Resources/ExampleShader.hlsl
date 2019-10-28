@@ -72,14 +72,16 @@ SamplerState g_sampler;
 // The vertex shader entry point. This function takes a single vertex and transforms it for the rasteriser.
 void VSMain(const VSInput input, out PSInput output)
 {
-	int speed = g_frameCount * 10;
-	float x = cos(radians((input.pos.x * 0) + g_frameCount));
-	
-	float y = cos(radians((input.pos.y * 100) + speed));
-	float z = cos(radians((input.pos.z * 10) + speed));
+	int speed = g_frameCount * 100;
+	float x = cos(radians((input.pos.x * 10) + g_frameCount));
+	//float y = cos(radians((input.pos.y * 100) + speed));
+	float y = 0;
+	float z = 0;
+	//float z = cos(radians((input.pos.z * 10) + speed));
 	output.pos = (mul(input.pos, g_WVP)) + float4(x, y, z, 1);
 	output.colour = input.colour;
 	output.normal = input.normal;
+	output.tex = input.tex;
 }
 
 // The pixel shader entry point. This function writes out the fragment/pixel colour.
