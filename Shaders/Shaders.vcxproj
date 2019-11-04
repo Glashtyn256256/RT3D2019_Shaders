@@ -89,10 +89,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Aeroplane.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="HeightMap.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Aeroplane.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="HeightMap.h" />
   </ItemGroup>

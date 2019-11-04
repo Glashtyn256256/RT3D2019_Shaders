@@ -12,6 +12,8 @@
 #include "CommonApp.h"
 #include "CommonMesh.h"
 
+
+class Aeroplane;
 class HeightMap;
 
 //////////////////////////////////////////////////////////////////////
@@ -48,6 +50,7 @@ class Application : public CommonApp
 
 	int m_cameraState;
 
+	Aeroplane* m_pAeroplane;
 	HeightMap* m_pHeightMap;
 
 	void ReloadShaders();

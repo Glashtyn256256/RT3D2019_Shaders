@@ -1,11 +1,14 @@
 #include "Application.h"
 #include "HeightMap.h"
+#include "Aeroplane.h"
 
 Application* Application::s_pApp = NULL;
 
 const int CAMERA_MAP = 0;
-const int CAMERA_ROTATE = 1;
-const int CAMERA_MAX = 2;
+const int CAMERA_PLANE = 1;
+const int CAMERA_GUN = 2;
+const int CAMERA_MAX = 3;
+//const int CAMERA_ROTATE = 4;
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -18,6 +21,9 @@ bool Application::HandleStart()
 
 	m_bWireframe = true;
 	m_pHeightMap = new HeightMap("Resources/heightmap.bmp", 2.0f);
+	m_pAeroplane = new Aeroplane(0.0f, 3.5f, 0.0f, 105.0f);
+
+	m_pAeroplane->LoadResources();
 
 	m_cameraZ = 50.0f;
 	m_rotationAngle = 0.f;
@@ -42,6 +48,8 @@ bool Application::HandleStart()
 void Application::HandleStop()
 {
 	delete m_pHeightMap;
+	Aeroplane::ReleaseResources();
+	delete m_pAeroplane;
 
 	this->CommonApp::HandleStop();
 }
@@ -59,10 +67,10 @@ void Application::ReloadShaders()
 
 void Application::HandleUpdate()
 {
-	if(m_cameraState == CAMERA_ROTATE)
-		m_rotationAngle += .01f;
+	/*if(m_cameraState == CAMERA_ROTATE)
+		m_rotationAngle += .01f;*/
 
-	if(m_cameraState == CAMERA_MAP || m_cameraState == CAMERA_ROTATE)
+	if(m_cameraState == CAMERA_MAP)// || m_cameraState == CAMERA_ROTATE)
 	{
 		if(this->IsKeyPressed('Q'))
 			m_cameraZ -= 2.0f;
@@ -103,6 +111,8 @@ void Application::HandleUpdate()
 		dbW = false;
 	}
 
+	m_pAeroplane->Update(m_cameraState != CAMERA_MAP);
+
 	if(this->IsKeyPressed(VK_F5))
 	{
 		if(!m_reload)
@@ -129,9 +139,19 @@ void Application::HandleRender()
 			vCamera = XMFLOAT3(sin(m_rotationAngle) * m_cameraZ, m_cameraZ / 4, cos(m_rotationAngle) * m_cameraZ);
 			vLookat = XMFLOAT3(0.0f, 4.0f, 0.0f);
 			break;
-		case CAMERA_ROTATE:
+		/*case CAMERA_ROTATE:
 			vCamera = XMFLOAT3(sin(m_rotationAngle) * m_cameraZ, m_cameraZ / 4, cos(m_rotationAngle) * m_cameraZ);
 			vLookat = XMFLOAT3(0.0f, 4.0f, 0.0f);
+			break;*/
+		case CAMERA_PLANE:
+			m_pAeroplane->SetGunCamera(false);
+			vCamera = XMFLOAT3(m_pAeroplane->GetCameraPosition().x, m_pAeroplane->GetCameraPosition().y, m_pAeroplane->GetCameraPosition().z);
+			vLookat = XMFLOAT3(m_pAeroplane->GetFocusPosition().x, m_pAeroplane->GetFocusPosition().y, m_pAeroplane->GetFocusPosition().z);
+			break;
+		case CAMERA_GUN:
+			m_pAeroplane->SetGunCamera(true);
+			vCamera = XMFLOAT3(m_pAeroplane->GetCameraPosition().x, m_pAeroplane->GetCameraPosition().y, m_pAeroplane->GetCameraPosition().z);
+			vLookat = XMFLOAT3(m_pAeroplane->GetFocusPosition().x, m_pAeroplane->GetFocusPosition().y, m_pAeroplane->GetFocusPosition().z);
 			break;
 	}
 
@@ -148,7 +168,12 @@ void Application::HandleRender()
 
 	this->Clear(XMFLOAT4(0.3f, .3f, 4.f, 1.f));
 
+	XMMATRIX matWorld;
+	matWorld = XMMatrixIdentity();
+	this->SetWorldMatrix(matWorld);
+
 	m_pHeightMap->Draw(m_frameCount);
+	m_pAeroplane->Draw();
 
 	m_frameCount++;
 }
